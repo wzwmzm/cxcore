@@ -1,4 +1,7 @@
 #!/bin/sh
+sudo umount root/dev/pts
+
+
 rm -rf root
 rm -rf p1
 rm -rf p2

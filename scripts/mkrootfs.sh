@@ -7,8 +7,8 @@ SOFTADDR=http://mirrors4.tuna.tsinghua.edu.cn/debian
 MIRROR=http://mirrors4.tuna.tsinghua.edu.cn
 FIRMWAREPATH=raspberrypi/pool/main/r/raspberrypi-firmware
 FIRMWARE_NONFREE_PATH=raspbian/raspbian/pool/non-free/f/firmware-nonfree
-KERNEL_VERSION=20200212-1_armhf
-FIRMWARE_NONFREE_VERSION=20190717
+KERNEL_VERSION=20200819-1_armhf
+FIRMWARE_NONFREE_VERSION=20200819
 
 echo You are running this scipt on a $ARCH mechine....
 
@@ -17,24 +17,26 @@ sudo apt-get install qemu-user-static
 else
 echo "You are running this script on a aarch64 mechine, progress...."
 fi
-
+echo "111111111111111111111111111111111"
 # 判断主机架构，从而判断是否需要安装qemu
 
 sudo apt install debootstrap debian-keyring
 mkdir $ROOTFS
-sudo debootstrap --foreign --no-check-gpg --arch=arm64 buster ./$ROOTFS $SOFTADDR
+sudo debootstrap --foreign --no-check-gpg --arch=armhf buster ./$ROOTFS $SOFTADDR
+echo "22222222222222222222222222222222222"
 
 if [ "$ARCH" != "$TARGET" ];then
 sudo cp /usr/bin/qemu-aarch64-static $ROOTFS/usr/bin
 else
 echo "You are running this script on a aarch64 mechine, progress...."
 fi
-
+echo "3333333333333333333333333333333333"
 # 判断主机架构，从而判断是否需要qemu来进行chroot
 
 LC_ALL=C LANGUAGE=C LANG=C chroot ./$ROOTFS /debootstrap/debootstrap --second-stage
+echo "4444444444444444444444444444444444"
 LC_ALL=C LANGUAGE=C LANG=C chroot ./$ROOTFS dpkg --configure -a
-
+echo "5555555555555555555555555555555555"
 #sed -i 's/deb.debian.org/mirrors4.tuna.tsinghua.edu.cn/' root/etc/apt/sources.list
 
 sudo mount -t devpts /dev/pts root/dev/pts
@@ -43,8 +45,9 @@ cat /dev/null > root/etc/apt/sources.list
 echo "deb http://mirrors4.tuna.tsinghua.edu.cn/debian buster main" >> root/etc/apt/sources.list
 
 LC_ALL=C LANGUAGE=C LANG=C chroot ./$ROOTFS apt-get update
+echo "666666666666666666666666666666666666"
 LC_ALL=C LANGUAGE=C LANG=C chroot ./$ROOTFS apt-get install -y sudo ssh net-tools ethtool wireless-tools network-manager iputils-ping rsyslog alsa-utils busybox kmod --no-install-recommends
-
+echo "7777777777777777777777777777777777777"
 # 换源，默认为清华源
 
 #sed -i 's/deb.debian.org/mirrors4.tuna.tsinghua.edu.cn/' root/etc/apt/sources.list
@@ -66,13 +69,15 @@ EOF
 # 用户名：pi
 # 密码：raspberry
 
-LC_ALL=C LANGUAGE=C LANG=C chroot $ROOTFS dpkg --add-architecture armhf
-LC_ALL=C LANGUAGE=C LANG=C chroot $ROOTFS apt-get update
-LC_ALL=C LANGUAGE=C LANG=C chroot $ROOTFS apt-get install libc6:armhf -y
-
+LC_ALL=C LANGUAGE=C LANG=C chroot ./$ROOTFS dpkg --add-architecture armhf
+echo "888888888888888888888888888888888888888888"
+LC_ALL=C LANGUAGE=C LANG=C chroot ./$ROOTFS apt-get update
+echo "999999999999999999999999999999999999999999"
+LC_ALL=C LANGUAGE=C LANG=C chroot ./$ROOTFS apt-get install libc6:armhf -y
+echo "0000000000000000000000000000000000000000000"
 # 开启32位兼容
 
-chroot $ROOTFS apt clean
+chroot ./$ROOTFS apt clean
 # 清除软件安装包缓存
 
 if [ "$ARCH" != "$TARGET" ];then
@@ -100,7 +105,7 @@ echo "pi ALL=(ALL) NOPASSWD: ALL" >> root/etc/sudoers.d/010_pi-nopassword
 
 mkdir kernel
 mkdir tmp
-
+echo "11111111111111111111111111111111111111111111"
 wget -O kernel/firmware-bin.deb $MIRROR/$FIRMWAREPATH/libraspberrypi-bin_1.$KERNEL_VERSION.deb
 echo 'Installing to root ....'
 sudo dpkg -x kernel/firmware-bin.deb tmp
@@ -149,7 +154,7 @@ cp -rfp tmp/* $ROOTFS
 rm -rf tmp/*
 
 # 获取内核头文件，方便后期编译模块
-
+echo "2222222222222222222222222222222222222222222222222"
 rm -rf $ROOTFS/lib/modules/*7+
 rm -rf $ROOTFS/lib/modules/*7l+
 rm -rf kernel
@@ -167,16 +172,10 @@ rm -rf tmp
 # 添加开机配置，启动命令
 # 使用EFI引导则跳过这一步
 
-#wget $MIRROR/$FIRMWARE_NONFREE_PATH/firmware-nonfree_$FIRMWARE_NONFREE_VERSION.orig.tar.xz
-#unxz firmware-nonfree_$FIRMWARE_NONFREE_VERSION.orig.tar.xz
-#tar -xvf firmware-nonfree_$FIRMWARE_NONFREE_VERSION.orig.tar
-#mv firmware-nonfree-$FIRMWARE_NONFREE_VERSION root/lib/firmware
-#rm firmware-nonfree_$FIRMWARE_NONFREE_VERSION.orig.tar
-
-wget $MIRROR/$FIRMWARE_NONFREE_PATH/raspberrypi-firmware_1.20200819.orig.tar.gz
-tar -xvf raspberrypi-firmware_1.20200819.orig.tar.gz
-mv raspberrypi-firmware-1.20200819 root/lib/firmware
-rm raspberrypi-firmware_1.20200819.orig.tar.gz
+wget $MIRROR/$FIRMWAREPATH/raspberrypi-firmware_1.$FIRMWARE_NONFREE_VERSION.orig.tar.gz
+tar -xvf raspberrypi-firmware_1.$FIRMWARE_NONFREE_VERSION.orig.tar.gz
+mv raspberrypi-firmware-1.$FIRMWARE_NONFREE_VERSION  root/lib/firmware
+rm raspberrypi-firmware_1.$FIRMWARE_NONFREE_VERSION.orig.tar.gz
 
 # 获取一些附带设备的驱动
 
