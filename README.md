@@ -25,9 +25,14 @@ A prebuilt Linux system use UEFI and f2fs for RaspberryPi all 64-Bit CPU serials
 
 ## 自行构建：
 
-`sh build.sh`
+`sudo sh build.sh`
 
-#### 建议使用ubuntu-18.04，x86_64进行构建。
+最终结果是debain.img
+
+注意事项:
+ 1,必须在PC或aarch64机上运行
+ 2,先用lsbkl命令看看loop设备是否在用,视情况修改scripts/dd_partition.sh文件头部选用的loop设备
+
 ### 注意：构建主机需要支持f2fs文件系统。
 #### （如何查看支不支持f2fs？ `cat /proc/filesystems | grep f2fs` 输出f2fs即为支持）
 
@@ -37,12 +42,13 @@ A prebuilt Linux system use UEFI and f2fs for RaspberryPi all 64-Bit CPU serials
 <p align="center">2018-2020 chainsx.cn</p>
 
 由于原文档仓库主人已经不再维护,所以无法直接使用. 本人在原有的基础上作了少量更新,以为可用,具体如下:
+(以下内容本仓库已经实现,这里只是标注了对原仓库作了哪些修改)
+这是一个用脚本制作镜像的例子,此方法为USB  EFI grub 启动,  但非GPT (是msdos分区表)
+下载:
+    git clone --depth=1 https://gitclone.com/github.com/wzwmzm/cxcore.git
 
-这是一个用脚本制作镜像的例子此方法为USB  EFI grub 启动,  但非GPT (是msdos分区表)
-git clone --depth=1 https://gitclone.com/github.com/wzwmzm/cxcore.git
-必须在PC或aarch64机上运行
 修改如下内容:
-1,nano scripts/mkrootfs.sh	(准备rootfs的内容, 内核也在这个分区中)	
+  1,nano scripts/mkrootfs.sh	(准备rootfs的内容, 内核也在这个分区中)	
     更新版本:   KERNEL_VERSION=20200819-1_armhf
     更新版本:   FIRMWARE_NONFREE_VERSION=20200819
     168行-172行改为:
@@ -52,16 +58,7 @@ git clone --depth=1 https://gitclone.com/github.com/wzwmzm/cxcore.git
        rm raspberrypi-firmware_1.$FIRMWARE_NONFREE_VERSION.orig.tar.gz
     39行增加;    sudo mount -t devpts /dev/pts root/dev/pts
     最后一行增加:  sudo umount root/dev/pts
-2,nano scripts/mkinitroot.sh
+  2,nano scripts/mkinitroot.sh
     61行改成: cat <<EOF >> initroot/etc/fstab
-3,nano scripts/dd_partition.sh
+  3,nano scripts/dd_partition.sh
     先用losetup命令看看loop设备是否在用
-
-使用方法:
-cd cxcore
-sudo  sh build.sh
-最终结果是debain.img
-
-注意事项:
- 1,必须在PC或aarch64机上运行
- 2,先用lsbkl命令看看loop设备是否在用,视情况修改scripts/dd_partition.sh文件头部选用的loop设备
