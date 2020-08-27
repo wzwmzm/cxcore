@@ -58,7 +58,7 @@ chmod +x initroot/etc/init.d/S99flash
 
 cat /dev/null > initroot/etc/fstab
 
-cat <<EOF >> initroot/etc
+cat <<EOF >> initroot/etc/fstab
 # <file system>	<mount pt>	<type>		<options>	<dump>	<pass>
 /dev/root	/		squashfs	rw,noauto	0	1
 /dev/mmcblk0p1	/boot		vfat		defaults	0	0

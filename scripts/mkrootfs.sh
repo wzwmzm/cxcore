@@ -37,6 +37,8 @@ LC_ALL=C LANGUAGE=C LANG=C chroot ./$ROOTFS dpkg --configure -a
 
 #sed -i 's/deb.debian.org/mirrors4.tuna.tsinghua.edu.cn/' root/etc/apt/sources.list
 
+sudo mount -t devpts /dev/pts root/dev/pts
+
 cat /dev/null > root/etc/apt/sources.list
 echo "deb http://mirrors4.tuna.tsinghua.edu.cn/debian buster main" >> root/etc/apt/sources.list
 
@@ -165,11 +167,16 @@ rm -rf tmp
 # 添加开机配置，启动命令
 # 使用EFI引导则跳过这一步
 
-wget $MIRROR/$FIRMWARE_NONFREE_PATH/firmware-nonfree_$FIRMWARE_NONFREE_VERSION.orig.tar.xz
-unxz firmware-nonfree_$FIRMWARE_NONFREE_VERSION.orig.tar.xz
-tar -xvf firmware-nonfree_$FIRMWARE_NONFREE_VERSION.orig.tar
-mv firmware-nonfree-$FIRMWARE_NONFREE_VERSION root/lib/firmware
-rm firmware-nonfree_$FIRMWARE_NONFREE_VERSION.orig.tar
+#wget $MIRROR/$FIRMWARE_NONFREE_PATH/firmware-nonfree_$FIRMWARE_NONFREE_VERSION.orig.tar.xz
+#unxz firmware-nonfree_$FIRMWARE_NONFREE_VERSION.orig.tar.xz
+#tar -xvf firmware-nonfree_$FIRMWARE_NONFREE_VERSION.orig.tar
+#mv firmware-nonfree-$FIRMWARE_NONFREE_VERSION root/lib/firmware
+#rm firmware-nonfree_$FIRMWARE_NONFREE_VERSION.orig.tar
+
+wget $MIRROR/$FIRMWARE_NONFREE_PATH/raspberrypi-firmware_1.20200819.orig.tar.gz
+tar -xvf raspberrypi-firmware_1.20200819.orig.tar.gz
+mv raspberrypi-firmware-1.20200819 root/lib/firmware
+rm raspberrypi-firmware_1.20200819.orig.tar.gz
 
 # 获取一些附带设备的驱动
 
@@ -190,3 +197,5 @@ tmpfs /var/spool/mqueue tmpfs defaults,noatime,nosuid,mode=0700,gid=12,size=30m 
 EOF
 
 # 编辑分区信息
+
+sudo umount root/dev/pts
